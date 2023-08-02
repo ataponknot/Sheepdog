@@ -62,10 +62,3 @@ class MasteringViewController: UIViewController {
     }
 }
 
-struct MasteredAudioResponse: Codable {
-    // Define the structure to handle the response from aimastering API
-    // You may customize this structure based on the actual response data
-    // from the aimastering API.
-    // For example, if the API returns a URL to the mastered audio file,
-    // you can add a property here to hold that URL.
-}
