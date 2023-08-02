@@ -1,0 +1,71 @@
+class MasteringViewController: UIViewController {
+    
+    @IBOutlet weak var inputFileURLField: UITextField!
+    @IBOutlet weak var outputFileURLField: UITextField!
+    
+    let aimasteringAPIKey = "YOUR_API_KEY"
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+    }
+    
+    @IBAction func startMastering(_ sender: UIButton) {
+        guard let inputFileURLString = inputFileURLField.text,
+              let outputFileURLString = outputFileURLField.text else {
+            return
+        }
+        
+        // Validate input file and output file URLs
+        guard let inputFileURL = URL(string: inputFileURLString),
+              let outputFileURL = URL(string: outputFileURLString) else {
+            // Handle invalid URLs
+            return
+        }
+        
+        // API call to aimastering for audio mastering
+        aimasteringAutoMaster(inputFileURL: inputFileURL, outputFileURL: outputFileURL)
+    }
+    
+    func aimasteringAutoMaster(inputFileURL: URL, outputFileURL: URL) {
+        // Set aimastering API endpoint URL
+        let aimasteringAPIURL = URL(string: "https://api.aimastering.com/master")!
+        
+        // Prepare the API request
+        var request = URLRequest(url: aimasteringAPIURL)
+        request.httpMethod = "POST"
+        request.addValue("Bearer \(aimasteringAPIKey)", forHTTPHeaderField: "Authorization")
+        
+        // Prepare the request body
+        let requestBody = ["input_file_url": inputFileURL.absoluteString,
+                           "output_file_url": outputFileURL.absoluteString]
+        let jsonData = try? JSONSerialization.data(withJSONObject: requestBody)
+        request.httpBody = jsonData
+        
+        // Make the API call
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            // Handle the response from aimastering
+            if let error = error {
+                // Handle API call error
+                print("Error: \(error)")
+            } else if let data = data {
+                // Handle API call success and process the mastered audio data
+                do {
+                    let masteredAudioData = try JSONDecoder().decode(MasteredAudioResponse.self, from: data)
+                    // Process the mastered audio data, e.g., save it or play it in the app
+                    print("Mastered audio data: \(masteredAudioData)")
+                } catch {
+                    // Handle JSON parsing error
+                    print("JSON decoding error: \(error)")
+                }
+            }
+        }.resume()
+    }
+}
+
+struct MasteredAudioResponse: Codable {
+    // Define the structure to handle the response from aimastering API
+    // You may customize this structure based on the actual response data
+    // from the aimastering API.
+    // For example, if the API returns a URL to the mastered audio file,
+    // you can add a property here to hold that URL.
+}
